@@ -4,22 +4,22 @@
     {
         static void Main(string[] args)
         {
-            BinaryReader reader = new BinaryReader(File.OpenRead("C:\\Users\\User\\source\\repos\\AiSDLabs\\Spring_Lab3\\tests\\enwik8_10p"));
+            /*BinaryReader reader = new BinaryReader(File.OpenRead("C:\\Users\\User\\source\\repos\\AiSDLabs\\Spring_Lab3\\tests\\enwik8_10p"));
             int[] counters = new int[256];
             while(reader.BaseStream.Position < reader.BaseStream.Length)
             {
                 Byte nextb = reader.ReadByte();
                 counters[Convert.ToInt32(nextb)]++;
             }
-            reader.Close();
+            reader.Close();*/
             /*string input = "input.txt";
             string output = "output.txt";
-            TextCompression.MTF(input, output);
+            TextCompression.LZ78(input, output);
             Console.WriteLine("Compression done!");*/
 
             //setting up tests
             //problem with MTF
-            /*CompressingSequence[] sequences = new CompressingSequence[7];
+            CompressingSequence[] sequences = new CompressingSequence[7];
             for (int i = 0; i < sequences.Length; i++)
             {
                 sequences[i] = new CompressingSequence();
@@ -64,7 +64,7 @@
                     Console.WriteLine($"Test {i + 1} out of {sequences.Length} done");
                 }
             }
-            Console.WriteLine("Done");*/
+            Console.WriteLine("Done");
         }
     }
 }

@@ -37,10 +37,5 @@ namespace Spring_Lab3
         {
             ArithmeticCoding.Compress(input_file, output_file);
         }
-
-        public static void PPM(string input_file, string output_file)
-        {
-            ArithmeticCoding.Compress(input_file, output_file);
-        }
     }
 }

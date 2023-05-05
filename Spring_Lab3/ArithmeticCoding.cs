@@ -17,27 +17,29 @@ namespace Spring_Lab3
 
         public static void Compress(string input_file, string output_file)
         {
-            using (StreamReader input = new StreamReader(input_file))
-            using (BinaryWriter output = new BinaryWriter(new FileStream(output_file, FileMode.Create),Encoding.UTF8))
+            using (BinaryReader input = new BinaryReader(new FileStream(input_file, FileMode.Open)))
+            using (BinaryWriter output = new BinaryWriter(new FileStream(output_file, FileMode.Create), Encoding.UTF8))
             {
-                int buffer_size = 32;
-                char[] buffer = new char[buffer_size];
-                while (!input.EndOfStream)
+                int buffer_size = 11;
+                Byte[] buffer = new Byte[buffer_size];
+                while (input.BaseStream.Position < input.BaseStream.Length)
                 {
                     int bytesRead = input.Read(buffer, 0, buffer_size);
-                    string data = new string(buffer, 0, bytesRead);
-                    data += "\u0092";
+                    Byte[] data = new Byte[bytesRead + 1];
+                    Array.Copy(buffer, data, bytesRead);
+                    data[data.Length - 1] = 0;
+                    //data += "\u0092";
                     double output_data = Encode(data);
                     output.Write(output_data);
                 }
             }
         }
 
-        private static double Encode(string input)
+        private static double Encode(Byte[] input)
         {
             //Calculate frequincies
-            Dictionary<char, int> frequencies = new Dictionary<char, int>();
-            foreach(char c in input)
+            Dictionary<Byte, int> frequencies = new Dictionary<Byte, int>();
+            foreach(Byte c in input)
             {
                 if(!frequencies.ContainsKey(c))
                 {
@@ -47,12 +49,12 @@ namespace Spring_Lab3
             }
 
             //Calculate intervals
-            Dictionary<char, Interval> intervals = new Dictionary<char, Interval>();
+            Dictionary<Byte, Interval> intervals = new Dictionary<Byte, Interval>();
             double low = 0.0;
             double high = 1.0;
-            foreach(KeyValuePair<char, int> symbol in frequencies)
+            foreach(KeyValuePair<Byte, int> symbol in frequencies)
             {
-                char c = symbol.Key;
+                Byte c = symbol.Key;
                 int frequency = symbol.Value;
                 double range = high - low;
                 double charLow = low;
@@ -64,7 +66,7 @@ namespace Spring_Lab3
             //Encode
             double inputLow = 0.0;
             double inputHigh = 1.0;
-            foreach(char c in input)
+            foreach(Byte c in input)
             {
                 double range = inputHigh - inputLow;
                 Interval c_interval = intervals[c];

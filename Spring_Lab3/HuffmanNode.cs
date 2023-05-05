@@ -9,11 +9,11 @@ namespace Spring_Lab3
     public class HuffmanNode
     {
         public int Frequency { get; set; }
-        public char? Character { get; set; }
+        public Byte? Character { get; set; }
         public HuffmanNode Left { get; set; }
         public HuffmanNode Right { get; set; }
 
-        public List<bool> Traverse(char c)
+        public List<bool> Traverse(Byte c)
         {
             //if this is the leaf of the tree
             if (Left == null && Right == null)

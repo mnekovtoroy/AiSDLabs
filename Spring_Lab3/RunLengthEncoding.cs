@@ -10,25 +10,38 @@ namespace Spring_Lab3
     {
         public static void Compress(string input_file, string output_file)
         {
-            using (StreamReader input = new StreamReader(input_file))
-            using (StreamWriter output = new StreamWriter(output_file))
+            using (BinaryReader input = new BinaryReader(new FileStream(input_file, FileMode.Open)))
+            using (BinaryWriter output = new BinaryWriter(new FileStream(output_file, FileMode.Create)))
             {
                 Encode(input, output);
             }
         }
 
-        private static void Encode(StreamReader input, StreamWriter output)
+        private static void Encode(BinaryReader input, BinaryWriter output)
         {
-            string separator = "\u0091";
-            if (input.EndOfStream) return;
-            char last_c = Convert.ToChar(input.Read());
-            int counter = 1;
-            while(!input.EndOfStream)
+            Byte separator = 0;
+            if (input.BaseStream.Position == input.BaseStream.Length) return;
+            Byte last_c = input.ReadByte();
+            short counter = 1;
+            while(input.BaseStream.Position != input.BaseStream.Length)
             {
-                char curr = Convert.ToChar(input.Read());
-                if(curr != last_c)
+                Byte curr = input.ReadByte();
+                if (curr != last_c)
                 {
-                    output.Write($"{counter}{separator}{last_c}");
+                    if(counter > 3)
+                    {
+                        output.Write(separator);
+                        output.Write(counter);
+                        output.Write(last_c);
+                    }
+                    else
+                    {
+                        while(counter > 0)
+                        {
+                            output.Write(last_c);
+                            counter--;
+                        }
+                    }
                     last_c = curr;
                     counter = 1;
                 } else
@@ -36,7 +49,20 @@ namespace Spring_Lab3
                     counter++;
                 }
             }
-            output.Write($"{counter}{separator}{last_c}");
+            if (counter > 3)
+            {
+                output.Write(separator);
+                output.Write(counter);
+                output.Write(last_c);
+            }
+            else
+            {
+                while (counter > 0)
+                {
+                    output.Write(last_c);
+                    counter--;
+                }
+            }
         }
     }
 }
