@@ -12,8 +12,8 @@
                 counters[Convert.ToInt32(nextb)]++;
             }
             reader.Close();*/
-            /*string input = "input.txt";
-            string output = "output.txt";
+            /*string input = "C:\\Users\\User\\source\\repos\\AiSDLabs\\Spring_Lab3\\tests\\enwik8_10p";
+            string output = "C:\\Users\\User\\source\\repos\\AiSDLabs\\Spring_Lab3\\tests\\test_3";
             TextCompression.LZ78(input, output);
             Console.WriteLine("Compression done!");*/
 
@@ -50,6 +50,7 @@
             sequences[6].CompressingAlgList.Add(TextCompression.RLE);
             sequences[6].CompressingAlgList.Add(TextCompression.AC);
 
+            Console.WriteLine("Starting...");
             string input_abs_path = "C:\\Users\\User\\source\\repos\\AiSDLabs\\Spring_Lab3\\tests\\enwik8_10p";
             string output_directory = "C:\\Users\\User\\source\\repos\\AiSDLabs\\Spring_Lab3\\tests\\";
             using (StreamWriter time_measurements = new StreamWriter(output_directory + "time_measurements.txt"))
