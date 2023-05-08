@@ -1,4 +1,6 @@
-﻿namespace Spring_Lab3
+﻿using static Spring_Lab3.ArithmeticCoding;
+
+namespace Spring_Lab3
 {
     internal class Program
     {
@@ -12,14 +14,22 @@
                 counters[Convert.ToInt32(nextb)]++;
             }
             reader.Close();*/
-            /*string input = "C:\\Users\\User\\source\\repos\\AiSDLabs\\Spring_Lab3\\tests\\enwik8_10p";
-            string output = "C:\\Users\\User\\source\\repos\\AiSDLabs\\Spring_Lab3\\tests\\test_3";
-            TextCompression.LZ78(input, output);
-            Console.WriteLine("Compression done!");*/
+            /*string input = "input.txt";
+            string output = "output.txt";
+            string output_decoded = "output_decoded.txt";
+            LZ78Compressor.Compress(input, output);
+            Console.WriteLine("Compression done!");
+            LZ78Compressor.Decompress(output, output_decoded);
+            Console.WriteLine("Decompression done!");*/
 
-            //setting up tests
-            //problem with MTF
-            CompressingSequence[] sequences = new CompressingSequence[7];
+            /*Dictionary<Byte, Interval> intervals;
+            Byte[] input = new byte[] { 72, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100, 33 };
+            double output = ArithmeticCoding.Encode(input, out intervals);
+            Byte[] output_decoded = ArithmeticCoding.Decode(output, intervals);
+            Console.WriteLine("done");*/
+
+            //enwik8 tests
+            /*CompressingSequence[] sequences = new CompressingSequence[7];
             for (int i = 0; i < sequences.Length; i++)
             {
                 sequences[i] = new CompressingSequence();
@@ -65,7 +75,7 @@
                     Console.WriteLine($"Test {i + 1} out of {sequences.Length} done");
                 }
             }
-            Console.WriteLine("Done");
+            Console.WriteLine("Done");*/
         }
     }
 }

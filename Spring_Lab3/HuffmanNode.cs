@@ -57,15 +57,39 @@ namespace Spring_Lab3
             return null;
         }
 
-        public string Serialize()
+        public Byte? GetByte(List<bool> encoded_bits)
+        {
+            if(Character != null)
+            {
+                return Character;
+            }
+            if(encoded_bits.Count == 0)
+            {
+                throw new InvalidOperationException("GetByte: Not enough data to decode character");
+            }
+            bool direction = encoded_bits[0];
+            encoded_bits.RemoveAt(0);
+            if(direction)
+            {
+                return Right.GetByte(encoded_bits);
+            } else
+            {
+                return Left.GetByte(encoded_bits);
+            }
+        }
+
+        public Byte[] Serialize()
         {
             if(Left == null && Right == null)
             {
-                return $"{Character}";
+                if (!Character.HasValue) { throw new InvalidOperationException("Non-serializable tree"); }
+                return new Byte[] { Character.Value };
             }
-            string left = Left == null ? "00" : Left.Serialize();
-            string right = Right == null ? "00" : Right.Serialize();
-            return $"[[ {left} || {right} ]]";
+            Byte[] left = Left == null ? new Byte[] { 251 } : Left.Serialize();
+            Byte[] right = Right == null ? new Byte[] { 251 } : Right.Serialize();
+            Byte[] result = new Byte[] {252};
+            result = result.Concat(left).Concat(right).Append(Convert.ToByte(253)).ToArray();
+            return result;
         }
     }
 }

@@ -8,6 +8,8 @@ namespace Spring_Lab3
 {
     public static class RunLengthEncoding
     {
+        private static Byte Separator = 0;
+
         public static void Compress(string input_file, string output_file)
         {
             using (BinaryReader input = new BinaryReader(new FileStream(input_file, FileMode.Open)))
@@ -17,9 +19,17 @@ namespace Spring_Lab3
             }
         }
 
+        public static void Decompress(string input_file, string output_file)
+        {
+            using (BinaryReader input = new BinaryReader(new FileStream(input_file, FileMode.Open)))
+            using (BinaryWriter output = new BinaryWriter(new FileStream(output_file, FileMode.Create)))
+            {
+                Decode(input, output);
+            }
+        }
+
         private static void Encode(BinaryReader input, BinaryWriter output)
         {
-            Byte separator = 0;
             if (input.BaseStream.Position == input.BaseStream.Length) return;
             Byte last_c = input.ReadByte();
             short counter = 1;
@@ -30,7 +40,7 @@ namespace Spring_Lab3
                 {
                     if(counter > 3)
                     {
-                        output.Write(separator);
+                        output.Write(Separator);
                         output.Write(counter);
                         output.Write(last_c);
                     }
@@ -51,7 +61,7 @@ namespace Spring_Lab3
             }
             if (counter > 3)
             {
-                output.Write(separator);
+                output.Write(Separator);
                 output.Write(counter);
                 output.Write(last_c);
             }
@@ -61,6 +71,28 @@ namespace Spring_Lab3
                 {
                     output.Write(last_c);
                     counter--;
+                }
+            }
+        }
+
+        private static void Decode(BinaryReader input, BinaryWriter output) 
+        {
+            while (input.BaseStream.Position < input.BaseStream.Length)
+            {
+                Byte curr = input.ReadByte();
+                if (curr == Separator)
+                {
+                    short counter = input.ReadInt16();
+                    Byte c = input.ReadByte();
+                    while (counter > 0)
+                    {
+                        output.Write(c);
+                        counter--;
+                    }
+                }
+                else
+                {
+                    output.Write(curr);
                 }
             }
         }
