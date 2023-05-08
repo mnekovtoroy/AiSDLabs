@@ -29,7 +29,7 @@ namespace Spring_Lab3
             Console.WriteLine("done");*/
 
             //enwik8 tests
-            /*CompressingSequence[] sequences = new CompressingSequence[7];
+            CompressingSequence[] sequences = new CompressingSequence[7];
             for (int i = 0; i < sequences.Length; i++)
             {
                 sequences[i] = new CompressingSequence();
@@ -75,7 +75,7 @@ namespace Spring_Lab3
                     Console.WriteLine($"Test {i + 1} out of {sequences.Length} done");
                 }
             }
-            Console.WriteLine("Done");*/
+            Console.WriteLine("Done");
         }
     }
 }
