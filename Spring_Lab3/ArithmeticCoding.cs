@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace Spring_Lab3
 {
@@ -36,7 +32,7 @@ namespace Spring_Lab3
         public static double Encode(Byte[] input, out Dictionary<Byte, Interval> intervals)
         {
             input = input.Append(Byte.MinValue).ToArray();
-            //Calculate frequincies
+            //Calculate frequencies
             Dictionary<Byte, int> frequencies = new Dictionary<Byte, int>();
             foreach(Byte c in input)
             {

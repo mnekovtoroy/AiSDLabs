@@ -1,6 +1,4 @@
-﻿using System.Drawing;
-
-namespace Spring_Lab4
+﻿namespace Spring_Lab4
 {
     internal class Program
     {
@@ -13,15 +11,23 @@ namespace Spring_Lab4
             string input = "sample_1920×1280.bmp";
             string output = "sample_1920×1280";
             string output_decoded = "sample_1920×1280_decoded";
-            Console.WriteLine("Starting...");
-            for(int i = 1; i <= 10; i++)
+            string time_measurments = "time_measurments.txt";
+            using(StreamWriter sw = new StreamWriter(time_measurments))
             {
-                MyJPEGConverter.ConvertToMyJPEG(input, output + $"_acc{i}.myjpeg", i);
-                Console.WriteLine($"Compression {i} done!");
-                MyJPEGConverter.ConvertToBMP(output + $"_acc{i}.myjpeg", output_decoded + $"_acc{i}.bmp");
-                Console.WriteLine($"Decompression {i} done!");
+                sw.WriteLine("test encode_time decode_time");
+                Console.WriteLine("Starting...");
+                for (int i = 1; i <= 10; i++)
+                {
+                    DateTime start = DateTime.Now;
+                    MyJPEGConverter.ConvertToMyJPEG(input, output + $"_acc{i}.myjpeg", i);
+                    DateTime after_compressing = DateTime.Now;
+                    MyJPEGConverter.ConvertToBMP(output + $"_acc{i}.myjpeg", output_decoded + $"_acc{i}.bmp");
+                    DateTime finish = DateTime.Now;
+                    sw.WriteLine($"{i} {(after_compressing - start).TotalMilliseconds} {(finish - after_compressing).TotalMilliseconds}");
+                    Console.WriteLine($"Test {i} done...");
+                }
+                Console.WriteLine("Done!");
             }
-            Console.WriteLine("Done!");
 
             /*byte[,] test = new byte[8, 8]
             {

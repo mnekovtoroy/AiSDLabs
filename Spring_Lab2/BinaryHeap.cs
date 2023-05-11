@@ -1,25 +1,23 @@
-﻿using System;
-
-namespace Spring_Lab2
+﻿namespace Spring_Lab2
 {
-    public class BinaryHeap<T> where T : IComparable<T>
+    public class BinaryHeap<T> : IHeap<T>
     {
-        private List<T> Heap = new List<T>();
+        private List<KeyValuePair<T, int>> Heap = new List<KeyValuePair<T, int>>();
 
         public int Count { get { return Heap.Count; } }
 
-        public void Push(T key)
+        public void Insert(T element, int key)
         {
-            Heap.Add(key);
+            Heap.Add(new KeyValuePair<T, int>(element, key));
             HeapifyUp(Heap.Count - 1);
         }
 
         private void HeapifyUp(int index)
         {
             int parent = (index - 1) / 2;
-            while (index > 0 && Heap[index].CompareTo(Heap[parent]) < 0)
+            while (index > 0 && Heap[index].Value < Heap[parent].Value)
             {
-                T temp = Heap[index];
+                var temp = Heap[index];
                 Heap[index] = Heap[parent];
                 Heap[parent] = temp;
                 index = parent;
@@ -27,14 +25,14 @@ namespace Spring_Lab2
             }
         }
 
-        public T Pop()
+        public KeyValuePair<T, int> ExtractMin()
         {
             if(Heap.Count == 0)
             {
                 throw new InvalidOperationException("Pop: Heap is empty");
             }
 
-            T item = Heap[0];
+            var item = Heap[0];
             Heap[0] = Heap[Heap.Count - 1];
             Heap.RemoveAt(Heap.Count - 1);
             if(Heap.Count > 0)
@@ -52,11 +50,11 @@ namespace Spring_Lab2
                 int leftChild = index * 2 + 1;
                 int rightChild = index * 2 + 2;
                 int lowest = index;
-                if(leftChild < Heap.Count && Heap[leftChild].CompareTo(Heap[lowest]) < 0)
+                if(leftChild < Heap.Count && Heap[leftChild].Value < Heap[lowest].Value)
                 {
                     lowest = leftChild;
                 }
-                if(rightChild < Heap.Count && Heap[rightChild].CompareTo(Heap[lowest]) < 0)
+                if(rightChild < Heap.Count && Heap[rightChild].Value < Heap[lowest].Value)
                 {
                     lowest = rightChild;
                 }
@@ -64,14 +62,14 @@ namespace Spring_Lab2
                 {
                     break;
                 }
-                T temp = Heap[index];
+                var temp = Heap[index];
                 Heap[index] = Heap[lowest];
                 Heap[lowest] = temp;
                 index = lowest;
             }
         }
 
-        public T Peek()
+        public KeyValuePair<T, int> Peek()
         {
             if(Heap.Count == 0)
             {
@@ -85,28 +83,18 @@ namespace Spring_Lab2
             Heap.Clear();
         }
 
-        public Graph<T> ToGraph(out GraphNode<T> root)
+        public void DecreaseKey(T element, int new_key)
         {
-            var graph = new Graph<T>();
-            List<GraphNode<T>> nodes = new List<GraphNode<T>>(Heap.Count);
-            nodes.Insert(0, graph.AddNode(Heap[0]));
-            for(int i = 0; i < Heap.Count; i++)
+            int index = Heap.FindIndex(x => x.Key.Equals(element));
+            int old_key = Heap[index].Value;
+            Heap[index] = new KeyValuePair<T, int>(element, new_key);
+            if(new_key < old_key)
             {
-                int leftChild = i * 2 + 1;
-                int rightChild = i * 2 + 2;
-                if (leftChild < Heap.Count)
-                {
-                    nodes.Insert(leftChild, graph.AddNode(Heap[leftChild]));
-                    graph.ConnectNodes(nodes[i], nodes[leftChild], 1);
-                }
-                if(rightChild < Heap.Count)
-                {
-                    nodes.Insert(rightChild, graph.AddNode(Heap[rightChild]));
-                    graph.ConnectNodes(nodes[i], nodes[rightChild], 1);
-                }
+                HeapifyUp(index);
+            } else
+            {
+                HeapifyDown(index);
             }
-            root = nodes[0];
-            return graph;
         }
     }
 }

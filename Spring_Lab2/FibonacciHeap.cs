@@ -1,32 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Spring_Lab2
+﻿namespace Spring_Lab2
 {
-    public class FibonacciHeap<T> where T : IComparable<T>
+    public class FibonacciHeap<T> : IHeap<T>
     {
-        private Node<T> _minNode;
-        private int _count;
+        private Dictionary<T, HeapNode<T>> _nodes;
+        private HeapNode<T> _minNode;
 
-        public int Count { get { return _count; } }
+        public int Count { get { return _nodes.Count; } }
 
         public FibonacciHeap()
         {
             _minNode = null;
-            _count = 0;
+            _nodes = new Dictionary<T, HeapNode<T>>();
         }
 
-        public void Insert(T key)
+        public void Insert(T element, int key)
         {
-            Node<T> node = new Node<T>(key);
+            HeapNode<T> node = new HeapNode<T>(element, key);
             _minNode = MergeLists(_minNode, node);
-            _count++;
+            _nodes.Add(element, node);
         }
 
-        private Node<T> MergeLists(Node<T> list1, Node<T> list2)
+        private HeapNode<T> MergeLists(HeapNode<T> list1, HeapNode<T> list2)
         {
             if (list1 == null && list2 == null)
                 return null;
@@ -35,7 +29,7 @@ namespace Spring_Lab2
             if (list2 == null)
                 return list1;
 
-            Node<T> temp = list1.Right;
+            HeapNode<T> temp = list1.Right;
             list1.Right = list2.Right;
             list1.Right.Left = list1;
             list2.Right = temp;
@@ -44,9 +38,9 @@ namespace Spring_Lab2
             return list1.Key.CompareTo(list2.Key) < 0 ? list1 : list2;
         }
 
-        public T ExtractMin()
+        public KeyValuePair<T, int> ExtractMin()
         {
-            if(_count == 0)
+            if(Count == 0)
             {
                 throw new InvalidOperationException("ExtractMin: FibonacciHeap is empty");
             }
@@ -62,23 +56,23 @@ namespace Spring_Lab2
             }
             min.Left.Right = min.Right;
             min.Right.Left = min.Left;
-            _minNode = MergeLists(min == min.Right ? null : min.Right, child);
+            _minNode = MergeLists(min == min.Left ? null : min.Left, child);
 
             if(_minNode == null)
             {
-                _count = 0;
-                return min.Key;
+                _nodes.Clear();
+                return new KeyValuePair<T, int>(min.Data, min.Key);
             }
 
             Consolidate();
-            _count--;
-            return min.Key;
+            _nodes.Remove(min.Data);
+            return new KeyValuePair<T, int>(min.Data, min.Key);
         }
 
         public void Consolidate()
         {
-            var treeList = new Node<T>[Convert.ToInt32(Math.Log2(_count)) + 1];
-            Node<T> curr = _minNode;
+            var treeList = new HeapNode<T>[Convert.ToInt32(Math.Log2(Count)) + 2];
+            HeapNode<T> curr = _minNode;
             int n_Roots = 0;
             //checking how many roots we have
             do
@@ -91,11 +85,11 @@ namespace Spring_Lab2
             while(n_Roots > 0)
             {
                 int deg = curr.Degree;
-                Node<T> next = curr.Left;
+                HeapNode<T> next = curr.Left;
                 //checking if there is root of that size already
                 while (treeList[deg] != null)
                 {
-                    Node<T> x = treeList[deg];
+                    HeapNode<T> x = treeList[deg];
                     if(curr.Key.CompareTo(x.Key) > 0)
                     {
                         var temp = x;
@@ -138,51 +132,48 @@ namespace Spring_Lab2
             }
         }
 
-        public Graph<Node<T>> ToGraph(out GraphNode<Node<T>> root)
+        public void Clear()
         {
-            root = null;
-            var graph = new Graph<Node<T>>();
-            if(_count == 0)
-            {
-                return graph;
-            }
-            Queue<Node<T>> queue = new Queue<Node<T>>();
-            Dictionary<Node<T>, GraphNode<Node<T>>> dict = new Dictionary<Node<T>, GraphNode<Node<T>>>();
+            _minNode = null;
+            _nodes.Clear();
+        }
 
-            queue.Enqueue(_minNode);
-            root = graph.AddNode(_minNode);
-            dict.Add(_minNode, root);
-            var curr = _minNode.Right;
-            while(curr != _minNode)
+        public void DecreaseKey(T element, int new_key)
+        {
+            var curr = _nodes[element];
+            if(new_key > curr.Key) { return; }
+
+            curr.Key = new_key;
+            var parent = curr.Parent;
+
+            if(parent != null && parent.Key < new_key) { return; }
+            else if(parent == null)
             {
-                queue.Enqueue(curr);
-                var cg = graph.AddNode(curr);
-                dict.Add(curr, cg);
-                graph.ConnectNodes(root, cg, 1);
-                curr = curr.Right;
-            }
-            while(queue.Count > 0)
+                _minNode = _minNode.Key < curr.Key ? _minNode : curr;
+                return;
+            }  else
             {
-                curr = queue.Dequeue();
-                GraphNode<Node<T>> curr_gn; 
-                if (!dict.ContainsKey(curr))
-                {
-                    curr_gn = graph.AddNode(curr);
-                    dict.Add(curr, curr_gn);
-                } else
-                {
-                    curr_gn = dict[curr];
-                }
-                var children = curr.GetChildsList();
-                foreach(var child in children)
-                {
-                    var child_gn = graph.AddNode(child);
-                    queue.Enqueue(child);
-                    dict.Add(child, child_gn);
-                    graph.ConnectNodes(curr_gn, child_gn, 1);
-                }
+                CutOut(curr);
             }
-            return graph;
+        }
+
+        private void CutOut(HeapNode<T> node)
+        {
+            var parent = node.Parent;
+
+            //removing node from parents list
+            if(parent != null) { node = node.Parent.RemoveChild(node); }
+            //adding it into root list
+            _minNode = MergeLists(_minNode, node);
+
+            node.Mark = false;
+            if(parent != null && !parent.Mark)
+            {
+                parent.Mark = true;
+            } else if(parent != null)
+            {
+                CutOut(parent);
+            }
         }
     }
 }

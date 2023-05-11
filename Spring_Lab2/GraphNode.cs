@@ -1,20 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Spring_Lab2
+﻿namespace Spring_Lab2
 {
     public class GraphNode<T>
     {
-        public T Key { get; set; }
+        public T Data { get; set; }
         public Dictionary<GraphNode<T>, int> AdjacentNodes { get; }
         public int Degree { get; set; }
 
-        public GraphNode(T key)
+        public GraphNode(T data)
         {
-            Key = key;
+            Data = data;
             AdjacentNodes = new Dictionary<GraphNode<T>, int>();
         }
 

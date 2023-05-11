@@ -2,91 +2,70 @@
 {
     internal class Program
     {
+        public delegate Dictionary<GraphNode<int>, int> DijkstraAlgs(Graph<int> graph, GraphNode<int> source);
+
+        public static Graph<int> GenerateGraph(int Size, double p)
+        {
+            var graph = new Graph<int>();
+            var nodes = new List<GraphNode<int>>();
+
+            var random = new Random(DateTime.Now.Millisecond);
+
+            //Creating graph with N nodes
+            for (int i = 1; i <= Size; i++)
+            {
+                nodes.Add(graph.AddNode(i));
+            }
+
+            //Creating connectoins between every node with the probability of p
+            for (int i = 0; i < nodes.Count; i++)
+            {
+                for (int j = i + 1; j < nodes.Count; j++)
+                {
+                    if (random.NextDouble() <= p)
+                    {
+                        graph.ConnectNodes(nodes[i], nodes[j], random.Next(1, 100));
+                    }
+                }
+            }
+
+            return graph;
+        }
+
+
         static void Main(string[] args)
         {
-            //full graph
-            int N = 5000;
-            var random = new Random(DateTime.Now.Millisecond);
-            using (StreamWriter sw = new StreamWriter("fullgraph.txt"))
-            {
-                sw.WriteLine("number_of_nodes_full_graph dijkstra_time");
-                var graph = new Graph<int>();
-                var nodes = new HashSet<GraphNode<int>>();
-                for(int i = 0; i <= N; i++)
-                {
-                    var newNode = graph.AddNode(i);
-                    foreach(var node in nodes)
-                    {
-                        graph.ConnectNodes(node, newNode, random.Next(100));
-                    }
-                    nodes.Add(newNode);
+            DijkstraAlgs[] dijkstra = new DijkstraAlgs[3];
+            dijkstra[0] = Dijkstra<int>.BasicDijkstra;
+            dijkstra[1] = Dijkstra<int>.BinaryHeapDijkstra;
+            dijkstra[2] = Dijkstra<int>.FiboancciHeapDijkstra;
+            int N = 10000;
+            int step = 100;
+            double[] probabilities = new double[3] { 0.1, 0.4, 0.8 };
 
-                    if (i % 50 == 0)
+            for (int i = 0; i < 3; i++)
+            {
+                using (StreamWriter sw = new StreamWriter($"test_{i + 1}.txt"))
+                {
+                    sw.WriteLine($"probablity {probabilities[i]}");
+                    sw.WriteLine("nodes basic binary fibonacci");
+                    for (int n = 1; n <= N; n += step)
                     {
-                        DateTime start = DateTime.Now;
-                        Dijkstra<int>.GetDistances(graph, graph.graphNodes.First());
-                        TimeSpan span = DateTime.Now - start;
-                        sw.WriteLine($"{i} {span.TotalMilliseconds}");
-                        Console.WriteLine($"Full graph {i + 1}/{N} done");
+                        string results = $"{n} ";
+                        var graph = GenerateGraph(n, probabilities[i]);
+                        for (int a = 0; a < dijkstra.Length; a++)
+                        {
+                            DateTime start = DateTime.Now;
+                            dijkstra[a](graph, graph.graphNodes.First());
+                            TimeSpan duration = DateTime.Now - start;
+                            results += $"{duration.TotalMilliseconds} ";
+                        }
+                        sw.WriteLine(results);
+                        Console.WriteLine($"Test {i}_{n} done...");
                     }
                 }
-                Console.WriteLine("Full graph done!");
             }
-
-            //BinaryHeap
-            using(StreamWriter sw = new StreamWriter("binaryheap.txt"))
-            {
-                sw.WriteLine("number_of_nodes_bin_heap dijkstra_time including_ToGraph");
-                var heap = new BinaryHeap<int>();
-                for (int i = 0; i <= N; i++)
-                {
-                    heap.Push(random.Next());
-
-                    if (i % 50 == 0)
-                    {
-                        DateTime start1 = DateTime.Now;
-                        GraphNode<int> source;
-                        var graph = heap.ToGraph(out source);
-                        DateTime start2 = DateTime.Now;
-                        Dijkstra<int>.GetDistances(graph, source);
-                        TimeSpan span2 = DateTime.Now - start2;
-                        TimeSpan span1 = DateTime.Now - start1;
-                        sw.WriteLine($"{i} {span2.TotalMilliseconds} {span1.TotalMilliseconds}");
-                        Console.WriteLine($"Binary heap graph {i + 1}/{N} done");
-                    }
-                }
-                Console.WriteLine("Binary heap done!");
-            }
-
-            //FibonacciHeap
-            using (StreamWriter sw = new StreamWriter("fiboncciheap.txt"))
-            {
-                sw.WriteLine("number_of_nodes_fib_heap dijkstra_time including_ToGraph");
-                var heap = new FibonacciHeap<int>();
-                heap.Insert(random.Next());
-                for (int i = 0; i <= N; i++)
-                {
-                    heap.Insert(random.Next());
-                    if(i % 10 == 0)
-                    {
-                        heap.ExtractMin();
-                    }
-
-                    if (i % 50 == 0)
-                    {
-                        DateTime start1 = DateTime.Now;
-                        GraphNode<Node<int>> source;
-                        var graph = heap.ToGraph(out source);
-                        DateTime start2 = DateTime.Now;
-                        Dijkstra<Node<int>>.GetDistances(graph, source);
-                        TimeSpan span2 = DateTime.Now - start2;
-                        TimeSpan span1 = DateTime.Now - start1;
-                        sw.WriteLine($"{i} {span2.TotalMilliseconds} {span1.TotalMilliseconds}");
-                        Console.WriteLine($"Binary heap graph {i + 1}/{N} done");
-                    }
-                }
-                Console.WriteLine("Fibonacci heap done!");
-            }
+            Console.WriteLine("Done");
         }
     }
 }
